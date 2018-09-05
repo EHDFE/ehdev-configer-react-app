@@ -1,0 +1,14 @@
+language: node_js
+node_js:
+- node
+cache:
+  directories:
+  - node_modules
+deploy:
+  provider: npm
+  email: macisi528@gmail.com
+  api_key:
+    secure: LtxTZRqWxlrmUKmnpEtlV8bTu2ITb9VgUGHjdewGhZTve50qwSp145WhH2ahkS+WBClijHCqbxbXFAKgyVhIfbI1BAcH/e44QHKuZSYPE8XUq4MIZHhvapVD4/QRW3WJ/mfu29V6zI4T42uif2vGaSVZmQsxSmI1E7dr9KH5a3HIzG3EkmIgqDNyLo/CvBKEHRNuKOScLy7QgOlnSeKQYk0HaXqZBKnuFaMMQfu6Iowz97jbKfyf1ioqfjVgBk7TQQFBIkdRJk9LEj+keTt14nTLrJNgjUuQHmZTWCyVgDI5umHT4zi1FAGzyxNaFFzBYRVIWRmMV0E4UY1WpQW1ZbmTBLOfuiEpZeCwzY/T87y4r5NCUyE5b+Dq1gGJ0lvlh1eWgQbjFmquvNVPERdsUwUF9XcTBzUNHR3CC9tfG9+8qgTHEP0m+AaD4NsFrE2pW85Vh62SZJYdlJyPMPJVZjSuWulzC7/DdybFCKT8rWbExcgb+xP6x4NPaCyyKpSMRaqCKQk1hfkrmz2b+OOYOT4IHdSK3nbRO/UgL8E9nlhklrbkhYRks+d8KOgLPDqKfSIuNrCn6/nGRjUVG4qKjPjwP1o2C/5k9QJe2CndTRgrb1iy1NU41Zu+cnhZ4A+TV8R1rYw1BDtNFI5AV8q4SWo08FYvSzeCryaMIi3JFjQ=
+  on:
+    tags: true
+    repo: EHDFE/ehdev-configer-react-app
