@@ -27,13 +27,3 @@
 | contentBase | undefined | 配置 devServer 的 [contentBase](https://webpack.js.org/configuration/dev-server/#devserver-contentbase)，默认包含当前项目的输出目录，不需要配置 |
 
 ## 使用说明
-
-### svg 用法
-
-引用 svg 路径后加上 `?reactComponnet` ，svg 会被转换成 react component
-否则 svg 会被当成普通的资源文件，使用 file-loader 加载
-
-```js
-import Foo from './foo.svg?reactComponnet';
-<Foo />
-```
