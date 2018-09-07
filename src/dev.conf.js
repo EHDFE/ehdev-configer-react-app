@@ -127,6 +127,7 @@ module.exports = async (PROJECT_CONFIG, options) => {
               importLoaders: 1,
               modules: true,
               localIdentName: '[name]__[local]',
+              namedExport: true,
             }),
           },
           // Opt-in support for Less (using .less extension).
@@ -158,6 +159,7 @@ module.exports = async (PROJECT_CONFIG, options) => {
                 importLoaders: 2,
                 modules: true,
                 localIdentName: '[name]__[local]',
+                namedExport: true,
               },
               {
                 loader: lessLoader,
