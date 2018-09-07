@@ -135,6 +135,7 @@ module.exports = async (PROJECT_CONFIG, options) => {
               importLoaders: 1,
               modules: true,
               localIdentName: '[hash:base64:5]',
+              namedExport: true,
             }),
           },
           // Opt-in support for Less (using .less extension).
@@ -166,6 +167,7 @@ module.exports = async (PROJECT_CONFIG, options) => {
                 importLoaders: 2,
                 modules: true,
                 localIdentName: '[hash:base64:5]',
+                namedExport: true,
               },
               {
                 loader: lessLoader,
