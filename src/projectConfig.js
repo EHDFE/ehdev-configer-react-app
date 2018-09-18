@@ -35,4 +35,5 @@ module.exports = {
   https: false,
   publicPath: '../',
   alias: {},
+  enableTsCheckerPlugin: false,
 };

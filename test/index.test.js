@@ -40,7 +40,7 @@ describe('exports methods: <<getProdConfig>> and <<getDevConfig>>', () => {
     );
     expect(devConfig.module.strictExportPresence).to.be.true;
     // expect(devConfig.module.rules[0].oneOf).to.have.lengthOf(6);
-    expect(devConfig.plugins).to.have.lengthOf(8);
+    expect(devConfig.plugins).to.have.lengthOf(7);
   });
 
   it('should getProdConfig a valid webpack config', async () => {

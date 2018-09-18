@@ -11,6 +11,7 @@ const CleanWebpackPlugin = require(path.join(SHELL_NODE_MODULES_PATH, 'clean-web
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const lessLoader = require.resolve('less-loader');
+const OfflinePlugin = require('offline-plugin');
 
 const {
   PROJECT_ROOT,
@@ -29,6 +30,7 @@ const ENV = 'PRODUCTION';
 
 module.exports = async (PROJECT_CONFIG, options) => {
   const BUILD_PATH = path.join(PROJECT_ROOT, PROJECT_CONFIG.buildPath);
+  const publicPath = PROJECT_CONFIG.publicPath || PUBLIC_PATH;
   
   const configResult = {};
 
@@ -38,9 +40,9 @@ module.exports = async (PROJECT_CONFIG, options) => {
      // Generated JS file names (with nested folders).
     // There will be one main bundle, and one file per asynchronous chunk.
     // We don't currently advertise code splitting but Webpack supports it.
-    filename: 'static/js/[name].[chunkhash:8].js',
-    chunkFilename: 'static/js/[name].[chunkhash:8].chunk.js',
-    publicPath: PROJECT_CONFIG.publicPath || PUBLIC_PATH,
+    filename: '[name].[chunkhash:8].js',
+    chunkFilename: '[name].[chunkhash:8].chunk.js',
+    publicPath,
   };
 
   // entry config
@@ -94,7 +96,7 @@ module.exports = async (PROJECT_CONFIG, options) => {
             loader: require.resolve('url-loader'),
             options: {
               limit: 10000,
-              name: 'static/media/[name].[hash:8].[ext]',
+              name: '[name].[hash:8].[ext]',
             },
           },
           // Process JS with Babel.
@@ -185,7 +187,7 @@ module.exports = async (PROJECT_CONFIG, options) => {
             exclude: [/\.(ts|tsx|js|jsx|mjs)$/, /\.html$/, /\.json$/],
             loader: require.resolve('file-loader'),
             options: {
-              name: 'static/media/[name].[hash:8].[ext]',
+              name: '[name].[hash:8].[ext]',
             },
           },
         ],
@@ -202,20 +204,42 @@ module.exports = async (PROJECT_CONFIG, options) => {
       dry: false,
     }),
     new webpack.HashedModuleIdsPlugin(),
-    new ForkTsCheckerWebpackPlugin({
-      tsconfig: TSCONFIG_PATH,
-      tslint: false,
-      checkSyntacticErrors: true,
-      watch: SOURCE_DIR,
-      async: true,
-    }),
     new MiniCssExtractPlugin({
       // Options similar to the same options in webpackOptions.output
       // both options are optional
-      filename: 'static/css/[name].[contenthash:8].css',
-      chunkFilename: 'static/css/[name].[contenthash:8].chunk.css',
+      filename: '[name].[contenthash:8].css',
+      chunkFilename: '[name].[contenthash:8].chunk.css',
+    }),
+    // Put it in the end to capture all the HtmlWebpackPlugin's
+    // assets manipulations and do leak its manipulations to HtmlWebpackPlugin
+    new OfflinePlugin({
+      appShell: publicPath,
+      // No need to cache .htaccess. See http://mxs.is/googmp,
+      // this is applied before any match in `caches` section
+      excludes: ['.htaccess'],
+      caches: {
+        main: [':rest:'],
+        // All chunks marked as `additional`, loaded after main section
+        // and do not prevent SW to install. Change to `optional` if
+        // do not want them to be preloaded at all (cached only when first loaded)
+        additional: ['*.chunk.js'],
+      },
+      // Removes warning for about `additional` section usage
+      safeToUseOptionalCaches: true,
     }),
   );
+
+  if (PROJECT_CONFIG.enableTsCheckerPlugin) {
+    plugins.push(
+      new ForkTsCheckerWebpackPlugin({
+        tsconfig: TSCONFIG_PATH,
+        tslint: false,
+        checkSyntacticErrors: true,
+        watch: SOURCE_DIR,
+        async: true,
+      }),
+    )
+  }
 
   Object.assign(configResult, {
     // Don't attempt to continue if there are any errors.
@@ -272,10 +296,20 @@ module.exports = async (PROJECT_CONFIG, options) => {
       splitChunks: {
         chunks: 'all',
         name: 'vendors',
+        cacheGroups: {
+          styles: {
+            name: 'styles',
+            test: /\.(le|c)ss$/,
+            chunks: 'all',
+            enforce: true,
+          },
+        },
       },
       // Keep the runtime chunk seperated to enable long term caching
       // https://twitter.com/wSokra/status/969679223278505985
       runtimeChunk: true,
+      concatenateModules: true,
+      sideEffects: true,
     },
   });
 

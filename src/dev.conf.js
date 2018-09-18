@@ -24,6 +24,10 @@ const {
 const PUBLIC_PATH = '/';
 const ENV = 'DEVELOPMENT';
 
+const workerPool = {
+  poolTimeout: Infinity,
+};
+
 module.exports = async (PROJECT_CONFIG, options) => {
   const BUILD_PATH = path.join(PROJECT_ROOT, PROJECT_CONFIG.buildPath);
   
@@ -85,7 +89,7 @@ module.exports = async (PROJECT_CONFIG, options) => {
             loader: require.resolve('url-loader'),
             options: {
               limit: 10000,
-              name: 'static/media/[name].[hash:8].[ext]',
+              name: '[name].[hash:8].[ext]',
             },
           },
           // Process JS with Babel.
@@ -99,9 +103,7 @@ module.exports = async (PROJECT_CONFIG, options) => {
               // improves compile time on larger projects
               {
                 loader: require.resolve('thread-loader'),
-                options: {
-                  poolTimeout: Infinity // keep workers alive for more effective watch mode
-                },
+                options: workerPool,
               },
               getBabelLoaderConfig(ENV, PROJECT_CONFIG),
             ],
@@ -182,7 +184,7 @@ module.exports = async (PROJECT_CONFIG, options) => {
             exclude: [/\.(ts|tsx|js|jsx|mjs)$/, /\.html$/, /\.json$/],
             loader: require.resolve('file-loader'),
             options: {
-              name: 'static/media/[name].[hash:8].[ext]',
+              name: '[name].[hash:8].[ext]',
             },
           },
         ],
@@ -194,17 +196,22 @@ module.exports = async (PROJECT_CONFIG, options) => {
     new webpack.HotModuleReplacementPlugin(),
     // Add module names to factory functions so they appear in browser profiler.
     new webpack.NamedModulesPlugin(),
-    new ForkTsCheckerWebpackPlugin({
-      tsconfig: TSCONFIG_PATH,
-      tslint: false,
-      checkSyntacticErrors: true,
-      watch: SOURCE_DIR,
-      async: true,
-    }),
     new webpack.WatchIgnorePlugin([
       /\.d\.ts$/,
     ]),
   );
+
+  if (PROJECT_CONFIG.enableTsCheckerPlugin) {
+    plugins.push(
+      new ForkTsCheckerWebpackPlugin({
+        tsconfig: TSCONFIG_PATH,
+        tslint: false,
+        checkSyntacticErrors: true,
+        watch: SOURCE_DIR,
+        async: true,
+      }),
+    )
+  }
 
   Object.assign(configResult, {
     entry,
@@ -220,6 +227,14 @@ module.exports = async (PROJECT_CONFIG, options) => {
       splitChunks: {
         chunks: 'all',
         name: 'vendors',
+        cacheGroups: {
+          style: {
+            name: 'style',
+            test: /\.(le|c)ss$/,
+            chunks: 'all',
+            enforce: true,
+          },
+        },
       },
     },
     // Turn off performance hints during development because we don't do any
