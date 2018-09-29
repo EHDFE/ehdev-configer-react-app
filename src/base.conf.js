@@ -37,7 +37,7 @@ module.exports = async (PROJECT_CONFIG, options) => {
       ],
       modules: [
         'node_modules',
-        // path.join(CONFIGER_FOLDER_PATH, 'node_modules'),
+        path.join(CONFIGER_FOLDER_PATH, 'node_modules'),
         path.resolve(__dirname, '../node_modules'),
       ],
       alias,
