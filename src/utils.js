@@ -1,5 +1,5 @@
 const path = require('path');
-const SHELL_NODE_MODULES_PATH = process.env.SHELL_NODE_MODULES_PATH;
+// const SHELL_NODE_MODULES_PATH = process.env.SHELL_NODE_MODULES_PATH;
 const autoprefixer = require('autoprefixer');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 

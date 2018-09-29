@@ -20,6 +20,7 @@ module.exports = {
     // if true (default) errors details will be written into the HTML page.
     showErrors: true,
   },
+  scriptExtHtmlWebpackPluginConfig: {},
   browserSupports: {
     DEVELOPMENT: ['last 2 versions'],
     PRODUCTION: ['last 2 versions'],

@@ -10,6 +10,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CleanWebpackPlugin = require(path.join(SHELL_NODE_MODULES_PATH, 'clean-webpack-plugin'));
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin');
 const lessLoader = require.resolve('less-loader');
 const OfflinePlugin = require('offline-plugin');
 
@@ -75,7 +76,12 @@ module.exports = async (PROJECT_CONFIG, options) => {
         },
       }, PROJECT_CONFIG.htmlWebpackPlugin))
     );
-  })
+  });
+  plugins.push(
+    new ScriptExtHtmlWebpackPlugin(PROJECT_CONFIG.scriptExtHtmlWebpackPluginConfig),
+  );
+
+  const lessVariables = PROJECT_CONFIG.theme || {};
 
   // module config
   const module = {
@@ -155,6 +161,7 @@ module.exports = async (PROJECT_CONFIG, options) => {
                 loader: lessLoader,
                 options: {
                   javascriptEnabled: true,
+                  modifyVars: lessVariables,
                 },
               },
             ),
@@ -175,6 +182,7 @@ module.exports = async (PROJECT_CONFIG, options) => {
                 loader: lessLoader,
                 options: {
                   javascriptEnabled: true,
+                  modifyVars: lessVariables,
                 },
               },
             ),
@@ -296,14 +304,6 @@ module.exports = async (PROJECT_CONFIG, options) => {
       splitChunks: {
         chunks: 'all',
         name: 'vendors',
-        cacheGroups: {
-          styles: {
-            name: 'styles',
-            test: /\.(le|c)ss$/,
-            chunks: 'all',
-            enforce: true,
-          },
-        },
       },
       // Keep the runtime chunk seperated to enable long term caching
       // https://twitter.com/wSokra/status/969679223278505985

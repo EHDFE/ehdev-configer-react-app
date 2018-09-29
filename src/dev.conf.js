@@ -5,6 +5,7 @@ const path = require('path');
 const SHELL_NODE_MODULES_PATH = process.env.SHELL_NODE_MODULES_PATH;
 const webpack = require(path.join(SHELL_NODE_MODULES_PATH, 'webpack'));
 const HtmlWebpackPlugin = require(path.join(SHELL_NODE_MODULES_PATH, 'html-webpack-plugin'));
+const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const lessLoader = require.resolve('less-loader');
 
@@ -58,9 +59,12 @@ module.exports = async (PROJECT_CONFIG, options) => {
         // chunks: [
         //   entryName,
         // ],
-      }, PROJECT_CONFIG.htmlWebpackPlugin))
+      }, PROJECT_CONFIG.htmlWebpackPlugin)),
     );
-  })
+  });
+  plugins.push(
+    new ScriptExtHtmlWebpackPlugin(PROJECT_CONFIG.scriptExtHtmlWebpackPluginConfig),
+  );
 
   // output config
   const output = {
@@ -69,6 +73,8 @@ module.exports = async (PROJECT_CONFIG, options) => {
     pathinfo: true,
     publicPath: PUBLIC_PATH,
   };
+
+  const lessVariables = PROJECT_CONFIG.theme || {};
 
   // module config
   const module = {
@@ -128,7 +134,7 @@ module.exports = async (PROJECT_CONFIG, options) => {
             use: getStyleLoaders(ENV, {
               importLoaders: 1,
               modules: true,
-              localIdentName: '[name]__[local]',
+              localIdentName: '[path][name]__[local]',
               namedExport: true,
             }),
           },
@@ -147,6 +153,7 @@ module.exports = async (PROJECT_CONFIG, options) => {
                 loader: lessLoader,
                 options: {
                   javascriptEnabled: true,
+                  modifyVars: lessVariables,
                 },
               },
             ),
@@ -160,13 +167,14 @@ module.exports = async (PROJECT_CONFIG, options) => {
               {
                 importLoaders: 2,
                 modules: true,
-                localIdentName: '[name]__[local]',
+                localIdentName: '[path][name]__[local]',
                 namedExport: true,
               },
               {
                 loader: lessLoader,
                 options: {
                   javascriptEnabled: true,
+                  modifyVars: lessVariables,
                 },
               },
             ),
