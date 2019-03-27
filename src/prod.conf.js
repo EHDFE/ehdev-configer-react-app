@@ -24,6 +24,8 @@ const {
   lessRegex,
   lessModuleRegex,
   getBabelLoaderConfig,
+  getHtmlLoaderConfig,
+  getExternals
 } = require('./utils');
 
 const PUBLIC_PATH = '/';
@@ -34,6 +36,8 @@ module.exports = async (PROJECT_CONFIG, options) => {
   const publicPath = PROJECT_CONFIG.publicPath || PUBLIC_PATH;
   
   const configResult = {};
+
+  const externals = getExternals(PROJECT_CONFIG);
 
   // output config
   const output = {
@@ -187,6 +191,7 @@ module.exports = async (PROJECT_CONFIG, options) => {
               },
             ),
           },
+          getHtmlLoaderConfig(PROJECT_CONFIG),
           // "file" loader makes sure assets end up in the `build` folder.
           // When you `import` an asset, you get its filename.
           // This loader doesn't use a "test" so it will catch all modules
@@ -256,6 +261,7 @@ module.exports = async (PROJECT_CONFIG, options) => {
     output,
     module,
     plugins,
+    externals,
     devtool: 'source-map',
     optimization: {
       minimizer: [

@@ -31,7 +31,7 @@ module.exports = {
   },
   providePluginConfig: {
   },
-  babelUseBuiltIns: 'usage',
+  babelUseBuiltIns: 'entry',
   // valid in dev environment
   https: false,
   publicPath: '../',

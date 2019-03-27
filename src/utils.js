@@ -48,6 +48,53 @@ exports.cssModuleRegex = /\.module\.css$/;
 exports.lessRegex = /\.(scss|less)$/;
 exports.lessModuleRegex = /\.module\.(scss|less)$/;
 
+exports.getExternals = PROJECT_CONFIG => {
+  let externals = Object.assign({}, PROJECT_CONFIG.externals);
+  if (PROJECT_CONFIG.externalModulesMap) {
+    const externalModuleNames = Object.keys(PROJECT_CONFIG.externalModulesMap);
+    externals = [
+      externals,
+      (context, request, callback) => {
+        const matchName = externalModuleNames.find(name => request.startsWith(name));
+        if (matchName) {
+          const restPath = request.replace(`${matchName}/`, '');
+          return callback(null, `${PROJECT_CONFIG.externalModulesMap[matchName]}('${restPath}')`)
+        }
+        callback();
+      },
+    ]
+  }
+  return externals;
+};
+
+exports.getHtmlLoaderConfig = PROJECT_CONFIG => ({
+  test: /\.html?$/,
+  use: [
+    {
+      loader: require.resolve('html-loader'),
+      options: {
+        ignoreCustomFragments: [/\{\{.*?}}/],
+        interpolate: true,
+        root: './',
+      },
+    },
+    {
+      loader: require.resolve('posthtml-loader'),
+      options: {
+        plugins: [
+          require('posthtml-expressions')({
+            locals:{
+              env: process.env.NODE_ENV,
+            },
+            // defaults delimiters: {{}} is conflicted with angular expression
+            delimiters: ['<%', '%>'],
+          })
+        ],
+      }
+    },
+  ],
+});
+
 exports.getBabelLoaderConfig = (env, PROJECT_CONFIG) => {
   return {
     loader: require.resolve('babel-loader'),

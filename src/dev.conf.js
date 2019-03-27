@@ -20,6 +20,8 @@ const {
   lessRegex,
   lessModuleRegex,
   getBabelLoaderConfig,
+  getHtmlLoaderConfig,
+  getExternals
 } = require('./utils');
 
 const PUBLIC_PATH = '/';
@@ -38,6 +40,8 @@ module.exports = async (PROJECT_CONFIG, options) => {
     `${require.resolve(`${path.join(SHELL_NODE_MODULES_PATH, 'webpack-dev-server')}/client`)}?http://${options.ip ? options.ip : 'localhost'}:${options.port}`,
     require.resolve(`${path.join(SHELL_NODE_MODULES_PATH, 'webpack')}/hot/dev-server`),
   ];
+
+  const externals = getExternals(PROJECT_CONFIG);
 
   // entry config
   const entry = {};
@@ -179,6 +183,7 @@ module.exports = async (PROJECT_CONFIG, options) => {
               },
             ),
           },
+          getHtmlLoaderConfig(PROJECT_CONFIG),
           // "file" loader makes sure those assets get served by WebpackDevServer.
           // When you `import` an asset, you get its (virtual) filename.
           // In production, they would get copied to the `build` folder.
@@ -226,6 +231,7 @@ module.exports = async (PROJECT_CONFIG, options) => {
     output,
     module,
     plugins,
+    externals,
     // devtool: 'cheap-module-source-map',
     devtool: 'inline-source-map',
     optimization: {
